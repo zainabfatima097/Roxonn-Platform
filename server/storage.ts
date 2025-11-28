@@ -30,7 +30,6 @@ const sessionPool = new Pool({
 
 const PostgresSessionStore = connectPg(session);
 
-let lastDeserializeLogTime = 0;
 const LOG_INTERVAL = 5000; // 5 seconds
 
 export interface IStorage {
