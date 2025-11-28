@@ -93,7 +93,7 @@ export class DatabaseStorage implements IStorage {
       });
       return user;
     } catch (error) {
-      console.error(`Error getting user by username "${username}":`, error);
+      console.error(`Error getting user by username ${JSON.stringify(username)}:`, error);
       throw error;
     }
   }
@@ -105,7 +105,7 @@ export class DatabaseStorage implements IStorage {
       });
       return user;
     } catch (error) {
-      console.error(`Error getting user by GitHub ID ${githubId}:`, error);
+      console.error(`Error getting user by GitHub ID ${JSON.stringify(githubId)}:`, error);
       throw error;
     }
   }
