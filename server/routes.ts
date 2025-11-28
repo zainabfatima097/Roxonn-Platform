@@ -19,7 +19,7 @@ import { registeredRepositories, courseAssignments } from "../shared/schema";
 import { db } from "./db";
 import { sql } from "drizzle-orm";
 import { handleOpenAIStream } from './openai-stream';
-import { getOrgRepos, getRepoDetails, verifyRepoExists, verifyUserIsRepoAdmin, verifyUserIsOrgAdmin, getUserAdminOrgs, getOrgReposForRegistration, getUserAdminRepos, handlePullRequestMerged, handleIssueClosed, getInstallationAccessToken, getGitHubApiHeaders, GITHUB_API_BASE, findAppInstallationByName } from "./github";
+import { getOrgRepos, getRepoDetails, verifyRepoExists, verifyUserIsRepoAdmin, verifyUserIsOrgAdmin, getUserAdminOrgs, getOrgReposForRegistration, getUserAdminRepos, handlePullRequestMerged, handleIssueClosed, getInstallationAccessToken, getGitHubApiHeaders, GITHUB_API_BASE, findAppInstallationByName, isValidGitHubOwner, isValidGitHubRepo, buildSafeGitHubUrl } from "./github";
 import { blockchain } from "./blockchain";
 import { ethers } from "ethers";
 import { log } from "./utils";
@@ -286,13 +286,15 @@ export async function registerRoutes(app: Express) {
   // Partner API for verifying user registrations
   app.get("/api/partners/verify-registration", async (req: Request, res: Response) => {
     try {
-      const { username, githubId, apiKey } = req.query;
+      const { username, githubId } = req.query;
+      // API key should be in header, not query parameter (prevents logging exposure)
+      const apiKey = req.headers['x-api-key'] as string;
 
       // Check for API key (should match the one configured in env variables)
       if (!apiKey || apiKey !== config.partnerApiKey) {
-        return res.status(401).json({ 
-          success: false, 
-          error: "Unauthorized - Invalid or missing API key" 
+        return res.status(401).json({
+          success: false,
+          error: "Unauthorized - Invalid or missing API key in X-API-Key header"
         });
       }
 
@@ -364,6 +366,12 @@ export async function registerRoutes(app: Express) {
     const { githubRepoId, githubRepoFullName, installationId } = req.body;
     if (!githubRepoId || !githubRepoFullName) {
       return res.status(400).json({ error: 'Missing repository ID or name' });
+    }
+
+    // SSRF Protection: Validate repository name format
+    const [repoOwnerFromName, repoNameFromName] = (githubRepoFullName || '').split('/');
+    if (!isValidGitHubOwner(repoOwnerFromName) || !isValidGitHubRepo(repoNameFromName)) {
+      return res.status(400).json({ error: 'Invalid repository name format' });
     }
 
     // Check if user is authenticated
@@ -828,22 +836,24 @@ export async function registerRoutes(app: Express) {
   app.get("/api/public/github/issues", async (req: Request, res: Response) => {
     try {
       const { owner, repo, labels } = req.query;
-      
-      // Validate owner and repo against GitHub patterns
-      const validOwner = typeof owner === 'string' && /^[a-zA-Z\d-]{1,39}$/.test(owner);
-      const validRepo = typeof repo === 'string' && /^[a-zA-Z\d_.-]{1,100}$/.test(repo);
-      if (!validOwner || !validRepo) {
-        return res.status(400).json({ error: 'Missing or invalid owner/repo parameters' });
+
+      // SSRF Protection: Validate owner and repo using centralized validation functions
+      if (typeof owner !== 'string' || typeof repo !== 'string') {
+        return res.status(400).json({ error: 'Missing owner/repo parameters' });
       }
-      
+      if (!isValidGitHubOwner(owner) || !isValidGitHubRepo(repo)) {
+        return res.status(400).json({ error: 'Invalid owner/repo format' });
+      }
+
       // Get issues with bounty labels from GitHub API directly
       // Use GitHub App installation token if available
       const fullRepoName = `${owner}/${repo}`;
-      
+
       // Find the installation for this repository
       const repositoryInfo = await storage.findRepositoryByFullName(fullRepoName);
-      
-      let issuesUrl = `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues`;
+
+      // Use safe URL builder to prevent SSRF
+      let issuesUrl = buildSafeGitHubUrl('/repos/{owner}/{repo}/issues', { owner, repo });
       let headers: Record<string, string> = {
         'Accept': 'application/vnd.github.v3+json'
       };

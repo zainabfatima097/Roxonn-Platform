@@ -187,6 +187,17 @@ export function setupAuth(app: Application) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Ensure CSRF tokens are generated for all authenticated sessions
+  // This provides protection against CSRF attacks for session-based routes
+  app.use((req, res, next) => {
+    // Generate CSRF token for authenticated sessions that don't have one
+    if (req.session && req.isAuthenticated && req.isAuthenticated() && !req.session.csrfToken) {
+      req.session.csrfToken = generateCsrfToken();
+      log(`Generated CSRF token for authenticated session`, 'auth');
+    }
+    next();
+  });
+
   // Configure JWT Strategy for API authentication (e.g., for VSCode extension)
   const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -401,8 +412,14 @@ export function setupAuth(app: Application) {
 
   // Auth routes
   app.get("/api/auth/github", (req, res, next) => {
-    const returnTo = req.query.returnTo as string;
-    const source = req.query.source as string; 
+    // Safely extract and validate query parameters to prevent type confusion attacks
+    // Express query params can be arrays if passed multiple times, so we ensure they're strings
+    const rawReturnTo = req.query.returnTo;
+    const rawSource = req.query.source;
+
+    // Only accept string values, reject arrays or other types
+    const returnTo = typeof rawReturnTo === 'string' ? rawReturnTo : undefined;
+    const source = typeof rawSource === 'string' ? rawSource : undefined; 
     
     // Create state for VSCode to maintain context through redirects without relying on session
     let state: string | undefined;

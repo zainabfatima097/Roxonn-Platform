@@ -1,6 +1,31 @@
 import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
 import { PredictionServiceClient } from '@google-cloud/aiplatform';
 import { config } from '../config'; // Assuming config will hold GCP details
+
+// Allowed upload directories for security
+const ALLOWED_UPLOAD_DIRS = [
+  path.join(os.tmpdir()),
+  path.join(process.cwd(), 'uploads'),
+];
+
+/**
+ * Validates that a file path is within allowed directories to prevent path traversal attacks.
+ * @param filePath The file path to validate
+ * @returns true if the path is safe, false otherwise
+ */
+function isPathSafe(filePath: string): boolean {
+  // Normalize and resolve the path to prevent ../ attacks
+  const normalizedPath = path.resolve(path.normalize(filePath));
+
+  // Check if the path is within any of the allowed directories
+  return ALLOWED_UPLOAD_DIRS.some(allowedDir => {
+    const normalizedAllowedDir = path.resolve(path.normalize(allowedDir));
+    return normalizedPath.startsWith(normalizedAllowedDir + path.sep) ||
+           normalizedPath === normalizedAllowedDir;
+  });
+}
 
 // Initialize the Vertex AI Prediction Service Client
 const clientOptions = {
@@ -17,8 +42,17 @@ const predictionServiceClient = new PredictionServiceClient(clientOptions);
 export async function processDocument(filePath: string): Promise<any> {
   console.log(`[AI Scoping Service] Starting REAL processing for file: ${filePath}`);
 
+  // Validate file path to prevent path traversal attacks
+  if (!isPathSafe(filePath)) {
+    console.error(`[AI Scoping Service] Rejected unsafe file path: ${filePath}`);
+    throw new Error('Invalid file path: path traversal detected or path outside allowed directories.');
+  }
+
+  // Normalize the path for consistent handling
+  const safePath = path.resolve(path.normalize(filePath));
+
   try {
-    const documentContent = await fs.readFile(filePath, 'utf-8');
+    const documentContent = await fs.readFile(safePath, 'utf-8');
 
     // These would be loaded from config, which gets them from .env
     const project = config.gcpProjectId || 'your-gcp-project-id'; // Placeholder
@@ -73,15 +107,19 @@ export async function processDocument(filePath: string): Promise<any> {
     // Parse the cleaned text to get the final JSON object
     const plan = JSON.parse(rawJsonText);
 
-    console.log(`[AI Scoping Service] Plan generated successfully for file: ${filePath}`);
+    console.log(`[AI Scoping Service] Plan generated successfully for file: ${safePath}`);
     return plan;
 
   } catch (error) {
     console.error('[AI Scoping Service] Error interacting with Vertex AI:', error);
     throw new Error('Failed to generate project plan from document.');
   } finally {
-    // Clean up the uploaded file after processing
-    await fs.unlink(filePath);
-    console.log(`[AI Scoping Service] Cleaned up temporary file: ${filePath}`);
+    // Clean up the uploaded file after processing (using validated safe path)
+    try {
+      await fs.unlink(safePath);
+      console.log(`[AI Scoping Service] Cleaned up temporary file: ${safePath}`);
+    } catch (unlinkError) {
+      console.error(`[AI Scoping Service] Failed to clean up file: ${safePath}`, unlinkError);
+    }
   }
 }

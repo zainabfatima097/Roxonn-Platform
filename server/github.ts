@@ -108,6 +108,73 @@ const ORG_NAME = 'Roxonn-FutureTech';
 // Export the constant
 export const GITHUB_API_BASE = 'https://api.github.com';
 
+// --- SSRF Protection: Safe URL Builder ---
+
+// GitHub username/org name regex: alphanumeric and hyphens, 1-39 characters
+const GITHUB_OWNER_REGEX = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
+
+// GitHub repo name regex: alphanumeric, hyphens, underscores, dots, 1-100 characters
+const GITHUB_REPO_REGEX = /^[a-zA-Z0-9._-]{1,100}$/;
+
+/**
+ * Validates a GitHub username/organization name against SSRF attacks
+ * @param owner - The GitHub username or organization name
+ * @returns true if valid, false otherwise
+ */
+export function isValidGitHubOwner(owner: string): boolean {
+  if (!owner || typeof owner !== 'string') return false;
+  // Check for path traversal attempts
+  if (owner.includes('/') || owner.includes('\\') || owner.includes('..')) return false;
+  // Check for URL-encoded characters
+  if (owner.includes('%')) return false;
+  return GITHUB_OWNER_REGEX.test(owner);
+}
+
+/**
+ * Validates a GitHub repository name against SSRF attacks
+ * @param repo - The GitHub repository name
+ * @returns true if valid, false otherwise
+ */
+export function isValidGitHubRepo(repo: string): boolean {
+  if (!repo || typeof repo !== 'string') return false;
+  // Check for path traversal attempts
+  if (repo.includes('/') || repo.includes('\\') || repo.includes('..')) return false;
+  // Check for URL-encoded characters
+  if (repo.includes('%')) return false;
+  return GITHUB_REPO_REGEX.test(repo);
+}
+
+/**
+ * Safely builds a GitHub API URL with validated owner and repo
+ * Prevents SSRF attacks by validating inputs before URL construction
+ * @param path - The API path template (e.g., '/repos/{owner}/{repo}/issues')
+ * @param params - Object containing owner, repo, and other parameters
+ * @returns The safe URL or throws an error if validation fails
+ */
+export function buildSafeGitHubUrl(path: string, params: Record<string, string>): string {
+  // Validate owner if present
+  if (params.owner && !isValidGitHubOwner(params.owner)) {
+    throw new Error(`Invalid GitHub owner name: ${params.owner}`);
+  }
+
+  // Validate repo if present
+  if (params.repo && !isValidGitHubRepo(params.repo)) {
+    throw new Error(`Invalid GitHub repository name: ${params.repo}`);
+  }
+
+  // Build the URL by replacing placeholders
+  let url = path;
+  for (const [key, value] of Object.entries(params)) {
+    // Double-check each value doesn't contain dangerous characters
+    if (value.includes('/') || value.includes('\\') || value.includes('..')) {
+      throw new Error(`Invalid parameter value for ${key}: ${value}`);
+    }
+    url = url.replace(`{${key}}`, encodeURIComponent(value));
+  }
+
+  return `${GITHUB_API_BASE}${url}`;
+}
+
 // --- GitHub API Auth Helpers ---
 
 // Export the helper
@@ -218,7 +285,13 @@ export async function getOrgRepos(req: Request, res: Response) {
 export async function getRepoDetails(req: Request, res: Response) {
   try {
     const { owner, name } = req.params;
+
+    // SSRF Protection: Validate owner and repo parameters
     const repoOwner = owner || ORG_NAME;
+    if (!isValidGitHubOwner(repoOwner) || !isValidGitHubRepo(name)) {
+      return res.status(400).json({ error: 'Invalid repository owner or name format' });
+    }
+
     const repoFullName = `${repoOwner}/${name}`;
 
     // Check if this is a registered private repo that requires installation token
@@ -265,9 +338,9 @@ export async function getRepoDetails(req: Request, res: Response) {
       apiHeaders = getGitHubApiHeadersForUser(req);
     }
 
-    // Fetch repository details
+    // Fetch repository details (using already validated repoOwner and name)
     const repoResponse = await axios.get(
-      `${GITHUB_API_BASE}/repos/${repoFullName}`,
+      buildSafeGitHubUrl('/repos/{owner}/{repo}', { owner: repoOwner, repo: name }),
       { headers: apiHeaders }
     );
 
@@ -277,11 +350,11 @@ export async function getRepoDetails(req: Request, res: Response) {
 
     // Then fetch issues and PRs
     const [issuesResponse, prsResponse] = await Promise.all([
-      axios.get(`${GITHUB_API_BASE}/repos/${repoFullName}/issues`, {
+      axios.get(buildSafeGitHubUrl('/repos/{owner}/{repo}/issues', { owner: repoOwner, repo: name }), {
         params: { state: 'open' },
         headers: apiHeaders
       }),
-      axios.get(`${GITHUB_API_BASE}/repos/${repoFullName}/pulls`, {
+      axios.get(buildSafeGitHubUrl('/repos/{owner}/{repo}/pulls', { owner: repoOwner, repo: name }), {
         params: { state: 'open' },
         headers: apiHeaders
       })
@@ -517,11 +590,17 @@ export async function handlePullRequestMerged(payload: WebhookPayload, installat
  * @returns Boolean indicating if repository exists
  */
 export async function verifyRepoExists(owner: string, repo: string): Promise<boolean> {
+  // SSRF Protection: Validate owner and repo parameters
+  if (!isValidGitHubOwner(owner) || !isValidGitHubRepo(repo)) {
+    log(`Invalid GitHub owner/repo format: ${owner}/${repo}`, 'github');
+    return false;
+  }
+
   try {
     log(`Verifying repository existence: ${owner}/${repo}`, 'github');
-    
+
     const response = await axios.get(
-      `${GITHUB_API_BASE}/repos/${owner}/${repo}`,
+      buildSafeGitHubUrl('/repos/{owner}/{repo}', { owner, repo }),
       { headers: getGitHubApiHeadersForServerPAT() }
     );
     
@@ -541,12 +620,18 @@ export async function verifyRepoExists(owner: string, repo: string): Promise<boo
  * @returns Boolean indicating if user has admin access
  */
 export async function verifyUserIsRepoAdmin(token: string, owner: string, repo: string): Promise<boolean> {
+  // SSRF Protection: Validate owner and repo parameters
+  if (!isValidGitHubOwner(owner) || !isValidGitHubRepo(repo)) {
+    log(`Invalid GitHub owner/repo format: ${owner}/${repo}`, 'github');
+    return false;
+  }
+
   try {
     log(`Verifying user admin permissions for ${owner}/${repo} via repo details endpoint`, 'github');
-    
+
     // Fetch main repository details using the user's token
     const response = await axios.get(
-      `${GITHUB_API_BASE}/repos/${owner}/${repo}`,
+      buildSafeGitHubUrl('/repos/{owner}/{repo}', { owner, repo }),
       { headers: getGitHubApiHeaders(token) }
     );
     
@@ -573,12 +658,18 @@ export async function verifyUserIsRepoAdmin(token: string, owner: string, repo: 
  * @returns Boolean indicating if user has admin access to the org
  */
 export async function verifyUserIsOrgAdmin(token: string, orgName: string): Promise<boolean> {
+  // SSRF Protection: Validate org name (use same validation as owner)
+  if (!isValidGitHubOwner(orgName)) {
+    log(`Invalid GitHub org name format: ${orgName}`, 'github');
+    return false;
+  }
+
   try {
     log(`Verifying user admin permissions for org ${orgName}`, 'github');
 
     // Fetch user's membership in the organization
     const response = await axios.get(
-      `${GITHUB_API_BASE}/user/memberships/orgs/${orgName}`,
+      buildSafeGitHubUrl('/user/memberships/orgs/{orgName}', { orgName }),
       { headers: getGitHubApiHeaders(token) }
     );
 

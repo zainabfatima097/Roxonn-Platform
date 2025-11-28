@@ -139,8 +139,13 @@ export const securityUtils = {
   
   // Sanitize input string
   sanitizeInput: (input: string): string => {
-    // Remove HTML tags
-    let sanitized = input.replace(/<[^>]*>/g, '');
+    // Remove HTML tags repeatedly to handle nested tags like <<script>
+    let sanitized = input;
+    let previousLength: number;
+    do {
+      previousLength = sanitized.length;
+      sanitized = sanitized.replace(/<[^>]*>/g, '');
+    } while (sanitized.length < previousLength);
     
     // Encode HTML entities
     sanitized = sanitized

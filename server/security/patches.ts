@@ -109,8 +109,9 @@ export const sanitizeRepoPayload = (req: Request, res: Response, next: NextFunct
 export const securityMonitor = (req: Request, res: Response, next: NextFunction) => {
   const startTime = Date.now();
   
-  // Log request details
-  console.log(`SECURITY: ${req.method} ${req.path} from ${req.ip}`, {
+  // Log request details (sanitizing path to prevent log injection)
+  const sanitizedPath = String(req.path).substring(0, 200).replace(/[\n\r]/g, '');
+  console.log('SECURITY:', req.method, sanitizedPath, 'from', req.ip, {
     userAgent: req.get('User-Agent'),
     contentLength: req.get('Content-Length'),
     contentType: req.get('Content-Type'),

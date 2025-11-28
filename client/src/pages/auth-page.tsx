@@ -44,6 +44,45 @@ const itemVariants = {
   },
 };
 
+// Validate returnTo URL to prevent open redirects and XSS
+function validateReturnTo(url: string | null): string {
+  const defaultPath = "/dashboard";
+
+  if (!url || typeof url !== 'string') {
+    return defaultPath;
+  }
+
+  // Trim whitespace
+  const trimmed = url.trim();
+
+  // Must start with a single forward slash (relative path)
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) {
+    return defaultPath;
+  }
+
+  // Block protocol patterns (javascript:, data:, vbscript:, etc.)
+  if (/^\/.*:/.test(trimmed) || trimmed.includes('://')) {
+    return defaultPath;
+  }
+
+  // Block encoded characters that could be used for bypass
+  if (/%2f/i.test(trimmed) || /%5c/i.test(trimmed) || /%00/.test(trimmed)) {
+    return defaultPath;
+  }
+
+  // Block backslashes (could be used for bypass on some systems)
+  if (trimmed.includes('\\')) {
+    return defaultPath;
+  }
+
+  // Only allow alphanumeric, forward slashes, hyphens, underscores, dots, and query strings
+  if (!/^\/[a-zA-Z0-9\-_./]*(\?[a-zA-Z0-9\-_=&%]*)?$/.test(trimmed)) {
+    return defaultPath;
+  }
+
+  return trimmed;
+}
+
 // GitHub Icon component (avoiding deprecated import)
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -62,7 +101,7 @@ export default function AuthPage() {
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const returnTo = new URLSearchParams(window.location.search).get("returnTo") || "/dashboard";
+  const returnTo = validateReturnTo(new URLSearchParams(window.location.search).get("returnTo"));
   const isRegistration = new URLSearchParams(window.location.search).get("registration") === "true";
   const source = new URLSearchParams(window.location.search).get("source");
   const isVSCodeAuth = source === "vscode";

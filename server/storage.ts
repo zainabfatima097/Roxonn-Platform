@@ -282,7 +282,7 @@ export class DatabaseStorage implements IStorage {
       log(`No pool managers found on-chain for repoId ${repoId}, or repo data from blockchain was incomplete (repo.poolManagers was ${repo?.poolManagers}).`, 'storage');
       return null;
     } catch (error) {
-      console.error(`Error getting repository pool manager for repoId ${repoId}:`, error);
+      console.error('Error getting repository pool manager for repoId:', String(repoId), error);
       throw error;
     }
   }

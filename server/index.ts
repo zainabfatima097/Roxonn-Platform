@@ -325,6 +325,34 @@ const blockchainLimiter = rateLimit({
 // Apply blockchain rate limiting
 app.use('/api/blockchain/', blockchainLimiter);
 
+// Rate limiting for VSCode API endpoints
+const vscodeLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 60, // Limit each IP to 60 requests per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again after 1 minute',
+  skip: (req) => config.nodeEnv === 'development', // Skip rate limiting in development
+  keyGenerator: (req) => req.ip as string, // Use req.ip with 'trust proxy'
+});
+
+// Apply VSCode rate limiting
+app.use('/api/vscode/', vscodeLimiter);
+
+// Rate limiting for node/compute API endpoints
+const nodeLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30, // Limit each IP to 30 requests per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many node API requests, please try again after 1 minute',
+  skip: (req) => config.nodeEnv === 'development', // Skip rate limiting in development
+  keyGenerator: (req) => req.ip as string, // Use req.ip with 'trust proxy'
+});
+
+// Apply node rate limiting
+app.use('/api/node/', nodeLimiter);
+
 // Health check endpoint for ALB
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy' });

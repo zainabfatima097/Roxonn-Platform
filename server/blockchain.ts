@@ -1571,7 +1571,7 @@ export class BlockchainService {
             log(`Node ${nodeId} registration status: ${node.isRegistered}`, "blockchain");
             return node.isRegistered;
         } catch (error) {
-            console.error(`Error checking registration for node ${nodeId}:`, error);
+            console.error('Error checking registration for node:', String(nodeId).substring(0, 100), error);
             return false;
         }
     }
@@ -1614,7 +1614,7 @@ export class BlockchainService {
             
             return tx;
         } catch (error) {
-            console.error(`Failed to register node ${nodeId}:`, error);
+            console.error('Failed to register node:', String(nodeId).substring(0, 100), error);
             throw error;
         }
     }
