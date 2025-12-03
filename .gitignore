@@ -19,6 +19,9 @@ client/.env
 client/.env.*
 !client/.env.example
 
+# MCP configuration (contains database credentials)
+.mcp.json
+
 # Logs
 logs/
 *.log

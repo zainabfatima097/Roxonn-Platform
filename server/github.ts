@@ -1032,7 +1032,8 @@ export async function handleIssueClosed(payload: WebhookPayload, installationId:
       });
       log(`Fetching timeline: ${timelineUrl}`, 'webhook-issue');
       const timelineResponse = await axios.get(timelineUrl, {
-          headers: installationApiHeaders // Use token!
+          headers: installationApiHeaders, // Use token!
+          params: { per_page: 100 } // Fetch more events to avoid missing cross-references
        });
        // Iterate backwards through timeline events to find the most recent closing event by a merged PR
        const timelineEvents = timelineResponse.data || [];
