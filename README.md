@@ -178,6 +178,111 @@ npx hardhat compile
 npx hardhat test
 ```
 
+## Testing
+
+The project uses [Vitest](https://vitest.dev/) for testing. Test suite includes backend service tests, API route tests, and frontend component tests.
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Run tests with coverage
+npm test -- --run --coverage
+
+# Run specific test file
+npm test -- --run server/services/__tests__/referralService.test.ts
+
+# Run backend service tests (verified working)
+npm test -- --run server/services/__tests__/
+
+# Run backend tests only
+npm test -- --run server
+```
+
+### Test Structure
+
+```
+server/
+├── services/
+│   └── __tests__/
+│       ├── referralService.test.ts
+│       ├── subscriptionService.test.ts
+│       └── onrampService.test.ts
+├── routes/
+│   └── __tests__/
+│       ├── authRoutes.test.ts
+│       ├── walletRoutes.test.ts
+│       └── blockchainRoutes.test.ts
+└── __tests__/
+    ├── auth.test.ts
+    └── walletService.test.ts
+
+client/src/
+├── components/
+│   └── __tests__/
+│       ├── navigation-bar.test.tsx
+│       └── wallet-info.test.tsx
+└── hooks/
+    └── __tests__/
+        ├── use-auth.test.ts
+        └── use-wallet.test.ts
+
+tests/
+├── blockchain-integration.test.ts
+├── bounty-bot-commands.test.ts
+└── reward-feature.test.ts
+```
+
+### Writing Tests
+
+#### Backend Service Tests
+
+```typescript
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { myService } from '../myService';
+
+describe('MyService', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should do something', async () => {
+    const result = await myService.doSomething();
+    expect(result).toBeDefined();
+  });
+});
+```
+
+#### Frontend Component Tests
+
+```typescript
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { MyComponent } from '../my-component';
+
+describe('MyComponent', () => {
+  it('should render correctly', () => {
+    render(<MyComponent />);
+    expect(screen.getByText('Hello')).toBeDefined();
+  });
+});
+```
+
+### Test Coverage
+
+Coverage reporting is configured using Vitest's v8 provider. Generate coverage reports with:
+
+```bash
+npm test -- --run --coverage
+```
+
+Coverage reports are available in the `coverage/` directory after running tests.
+
 ## Contributing
 Contributions are welcome! Please read our contributing guidelines for details.
 
