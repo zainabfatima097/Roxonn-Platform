@@ -35,7 +35,7 @@ import { TransactionStatus } from '../shared/schema';
 import { WalletService } from './walletService';
 import { checkRepositoryFundingLimit, recordRepositoryFunding, getRepositoryFundingStatus, REPOSITORY_FUNDING_DAILY_LIMIT } from './funding-limits';
 import { transferLimits, DAILY_TRANSFER_LIMIT } from './transfer-limits';
-import { encryptWithSharedSecret, deriveSharedSecret, SERVER_PUBLIC_KEY_BASE64 } from './ecdh';
+// ECDH functions imported dynamically in wallet export endpoint
 import { sendOtpEmail } from './email';
 import aiScopingAgentRouter from './routes/aiScopingAgent';
 import multiCurrencyWalletRoutes from './routes/multiCurrencyWallet';
@@ -3043,9 +3043,10 @@ export async function registerRoutes(app: Express) {
       }
 
       // --- Envelope encryption using shared secret ---
-      const { deriveSharedSecret, encryptWithSharedSecret, SERVER_PUBLIC_KEY_BASE64 } = await import('./ecdh');
+      const { deriveSharedSecret, encryptWithSharedSecret, getServerPublicKey } = await import('./ecdh');
       const sharedSecret = await deriveSharedSecret(clientPubKey);
       const { iv, cipherText } = await encryptWithSharedSecret(walletData.privateKey, sharedSecret);
+      const serverPublicKeyBase64 = await getServerPublicKey();
 
       // Add network configuration for XDC
       // MetaMask requires specific formatting for chainId as a hex string
@@ -3077,7 +3078,7 @@ export async function registerRoutes(app: Express) {
         address: walletData.address,
         cipherText,
         iv,
-        serverPublicKey: SERVER_PUBLIC_KEY_BASE64,
+        serverPublicKey: serverPublicKeyBase64,
         networkConfig
       });
     } catch (error: any) {
