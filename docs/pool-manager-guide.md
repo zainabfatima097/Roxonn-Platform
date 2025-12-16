@@ -1,7 +1,7 @@
 # Roxonn Platform: Pool Manager Manual
 
 ## Overview
-Pool Managers are project maintainers who fund repositories to attract quality contributors. This manual explains how to use Roxonn as a Pool Manager to fund your open-source projects and manage contributor rewards.
+Pool Managers are project maintainers who fund repositories to attract quality contributors. This manual explains how to use **Roxonn** as a **Pool Manager** to fund your open-source projects and manage contributor rewards.
 
 ---
 
@@ -85,9 +85,9 @@ repository:
 
 Roxonn supports the following tokens for funding repositories:
 
-1. **XDC** – Native token of the XDC Network  
-2. **ROXN** – Roxonn platform token  
-3. **USDC** – Stablecoin  
+1. **XDC** - Native token of the XDC Network  
+2. **ROXN** - Roxonn platform token  
+3. **USDC** - Stablecoin  
 
 ---
 
