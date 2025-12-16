@@ -1,6 +1,6 @@
 # Roxonn Platform: Pool Manager Manual
 
-## Overvie
+## Overview
 Pool Managers are project maintainers who fund repositories to attract quality contributors. This manual explains how to use Roxonn as a Pool Manager to fund your open-source projects and manage contributor rewards.
 
 ---
@@ -448,5 +448,39 @@ interface PoolManagerAPI {
   blacklistContributor(repoId: string, contributorId: string, reason: string): Promise<void>;
   whitelistContributor(repoId: string, contributorId: string): Promise<void>;
 }
+
+---
+
+Quick Reference Commands
+
+```bash
+# Check repository balance
+curl -X GET https://api.roxonn.com/repos/{repoId}/balance \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# Add funds to repository
+curl -X POST https://api.roxonn.com/repos/{repoId}/fund \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"amount": "100", "token": "XDC"}'
+
+# Get pending payments
+curl -X GET https://api.roxonn.com/repos/{repoId}/pending-payments \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+---
+
+# Need Help?
+
+- **Discord:** Join our community for real-time support  
+- **FAQ:** Check our FAQ page for common questions  
+- **Email:** [pool-managers@roxonn.com](mailto:pool-managers@roxonn.com)  
+
+---
+
+**Version:** 1.0.0  
+**Last Updated:** December 2024  
+**Platform Version:** Roxonn v2.1+
+
 
 
