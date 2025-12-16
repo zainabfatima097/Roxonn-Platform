@@ -150,6 +150,37 @@ const funding = {
 
 ---
 
+# Adding Bounties via GitHub Comments
+
+Instead of using the dashboard, you can now create bounties directly from GitHub issues using our bot integration. This feature allows you to manage rewards without leaving your development workflow.
+
+## Available Commands
+
+```bash
+# Basic bounty creation
+@roxonn add bounty 100 XDC
+@roxonn set reward 500 ROXN
+@roxonn fund issue with 200 USDC
+
+# With parameters and conditions
+@roxonn add bounty 150 XDC priority=high
+@roxonn set reward 300 ROXN requires-tests=true deadline=7d
+@roxonn fund with 250 XDC for-beginner=true
+
+# Check and manage existing bounties
+@roxonn bounty status
+@roxonn show rewards
+@roxonn increase bounty by 50 XDC
+@roxonn close bounty
+@roxonn transfer bounty to issue#45
+
+# Get help
+@roxonn help
+@roxonn commands
+```
+
+---
+
 ### Reward Distribution Rules
 
 ```yaml
