@@ -98,9 +98,9 @@ Roxonn supports the following tokens for funding repositories:
 - Click **“Fund Repository”**
 
 #### Step 2: Choose Funding Method
-- **One-time Funding** – Add a lump sum to the repository pool  
-- **Recurring Funding** – Set up automatic monthly funding  
-- **Per-Issue Funding** – Fund specific issues individually  
+- **One-time Funding** - Add a lump sum to the repository pool  
+- **Recurring Funding** - Set up automatic monthly funding  
+- **Per-Issue Funding** - Fund specific issues individually  
 
 #### Step 3: Set Funding Amount
 
