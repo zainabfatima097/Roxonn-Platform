@@ -242,5 +242,187 @@ With multi-sig wallets:
 
 This setup is recommended for high-value repositories or shared treasury management.
 
+```solidity
+// Example multi-sig configuration
+multisig:
+  required_signatures: 2
+  signers:
+    - "0xMaintainer1"
+    - "0xMaintainer2"
+    - "0xMaintainer3"
+```
+
+---
+
+### Staking for Pool Managers
+
+Pool Managers can stake **ROXN tokens** to unlock additional platform benefits, including:
+
+- Governance voting rights for platform-level decisions
+- Discounts on platform fees
+- Increased reputation and visibility within the Roxonn ecosystem
+
+Staking helps establish long-term commitment and trust, especially for high-impact projects.
+
+---
+
+### Analytics Dashboard
+
+The Analytics Dashboard provides insights into your repository’s performance and engagement.
+
+You can track:
+
+- **Contribution Metrics**
+  - Number of pull requests submitted and merged
+  - Lines of code added or modified
+  - Issues resolved over time
+
+- **Financial Metrics**
+  - Total funds allocated
+  - Rewards distributed to contributors
+  - Current reward pool balance
+
+- **Contributor Statistics**
+  - Number of active contributors
+  - Contributor retention rates
+  - Overall contributor satisfaction scores
+
+These insights help Pool Managers optimize funding strategies and contributor engagement.
+
+---
+
+### Integration with CI/CD
+
+Roxonn integrates seamlessly with existing CI/CD pipelines to automate validation and reward eligibility.
+
+Supported integrations allow you to:
+- Require CI checks to pass before rewards are released
+- Enforce test coverage and build success
+- Ensure consistent code quality before payment automation triggers
+
+This ensures rewards are only distributed for verified, high-quality contributions.
+```yaml
+# GitHub Actions Integration Example
+name: Roxonn Bounty Verification
+on:
+  pull_request:
+    types: [closed]
+jobs:
+  verify-and-pay:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: Verify Contribution
+        uses: roxonn/verify-action@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          roxonn-token: ${{ secrets.ROXONN_TOKEN }}
+      
+      - name: Trigger Payment
+        if: success()
+        run: |
+          curl -X POST https://api.roxonn.com/webhook/payment \
+            -H "Authorization: Bearer ${{ secrets.ROXONN_TOKEN }}" \
+            -d '{"pr_id": "${{ github.event.pull_request.id }}"}'
+```
+---
+# Troubleshooting
+
+## Common Issues and Solutions
+
+### Issue: Payment Not Processing
+
+**Symptoms:** PR merged but payment not sent
+
+**Checklist:**
+1. Verify repository has sufficient funds
+2. Check if auto-payment is enabled
+3. Confirm PR meets all requirements
+4. Check blockchain transaction status
+
+### Issue: Contributor Disputes
+
+**Resolution Process:**
+1. Open communication with contributor
+2. Review code quality objectively
+3. Consult community guidelines
+4. Escalate to platform arbitration if needed
+
+---
+
+### Issue: Wallet Problems
+
+**Solutions:**
+- **Insufficient Gas:** Add XDC for transaction fees
+- **Wrong Network:** Ensure you're on XDC Mainnet
+- **Connection Issues:** Reconnect wallet or clear cache
+
+### Support Channels
+
+- **Documentation:** [docs.roxonn.com](https://docs.roxonn.com)
+- **Discord Community:** Join for real-time support
+- **GitHub Issues:** Report bugs or request features
+- **Email Support:** [support@roxonn.com](mailto:support@roxonn.com)
+
+---
+
+# Best Practices
+
+## For Successful Project Funding
+
+1. **Start Small:** Begin with modest bounties to test the system  
+2. **Clear Requirements:** Write detailed issue descriptions  
+3. **Quick Reviews:** Respond promptly to PR submissions  
+4. **Fair Compensation:** Research market rates for similar work  
+5. **Regular Updates:** Keep your funding pool replenished  
+
+## Community Building
+
+1. **Recognize Contributors:** Publicly acknowledge good work  
+2. **Provide Feedback:** Help contributors improve  
+3. **Build Relationships:** Engage with active contributors  
+4. **Share Success:** Publicize project milestones achieved through contributions
+
+---
+
+# Financial Management
+
+1. **Budget Planning:** Allocate funds for different types of work  
+2. **Track Expenses:** Monitor your funding pool balance  
+3. **Diversify Tokens:** Consider using multiple token types  
+4. **Tax Considerations:** Consult with a tax professional about crypto payments  
+
+# Security Considerations
+
+## Protecting Your Funds
+
+1. **Use Hardware Wallets:** For large amounts, use cold storage  
+2. **Enable 2FA:** On both GitHub and Roxonn accounts  
+3. **Regular Audits:** Review transactions and contributor activity  
+4. **Emergency Stop:** Know how to pause payments if needed
+
+--
+
+# Smart Contract Safety
+
+- **Contracts are audited and open source**  
+- **Use only verified contract addresses**  
+- **Test on Apothem Testnet first**  
+- **Start with small transaction amounts**  
+
+# Glossary
+
+- **Pool Manager:** Project maintainer who funds and manages a repository  
+- **Bounty:** Reward offered for completing a specific task  
+- **Contribution:** Code change submitted via pull request  
+- **Reward Pool:** Total funds allocated to a repository  
+- **Dispute Period:** Time window for contesting payment decisions  
+- **Multi-sig:** Multi-signature wallet requiring multiple approvals
+
+
+
+
+
+
 
 
