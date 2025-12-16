@@ -178,7 +178,32 @@ Instead of using the dashboard, you can now create bounties directly from GitHub
 @roxonn help
 @roxonn commands
 ```
+---
 
+```mermaid
+flowchart TD
+    A[Create GitHub Issue] --> B[Comment: @roxonn add bounty]
+    B --> C{Bot Verification}
+    
+    C -->|Success| D[Bounty Created]
+    C -->|Failure| E[Error Message]
+    
+    D --> F[Issue Labeled 'roxonn-funded']
+    F --> G[Bounty Listed on Roxonn]
+    G --> H[Contributors Work on Issue]
+    H --> I[PR Submitted]
+    I --> J[PR Reviewed & Merged]
+    J --> K[Auto-payment Executed]
+    
+    E --> M[Check Requirements]
+    M --> N[Fix: Funds/App/Permissions]
+    N --> B
+    
+    style A fill:#e1f5fe
+    style D fill:#e8f5e8
+    style K fill:#e8f5e8
+    style E fill:#ffebee
+```
 ---
 
 ### Reward Distribution Rules
