@@ -392,6 +392,8 @@ jobs:
 3. **Diversify Tokens:** Consider using multiple token types  
 4. **Tax Considerations:** Consult with a tax professional about crypto payments  
 
+---
+
 # Security Considerations
 
 ## Protecting Your Funds
@@ -401,7 +403,7 @@ jobs:
 3. **Regular Audits:** Review transactions and contributor activity  
 4. **Emergency Stop:** Know how to pause payments if needed
 
---
+---
 
 # Smart Contract Safety
 
@@ -419,10 +421,32 @@ jobs:
 - **Dispute Period:** Time window for contesting payment decisions  
 - **Multi-sig:** Multi-signature wallet requiring multiple approvals
 
+---
 
+# Appendix
 
+## API Reference for Pool Managers
 
+```typescript
+// Complete API interface for Pool Managers
+interface PoolManagerAPI {
+  // Repository Management
+  registerRepository(repo: GitHubRepo): Promise<Repository>;
+  updateRepositorySettings(id: string, settings: RepoSettings): Promise<void>;
+  fundRepository(id: string, amount: string, token: TokenType): Promise<Transaction>;
+  
+  // Reward Management
+  setBounty(issueId: string, amount: string): Promise<void>;
+  adjustReward(prId: string, newAmount: string): Promise<void>;
+  distributeReward(prId: string, recipients: ContributorSplit[]): Promise<Transaction>;
 
-
+  // Analytics
+  getRepositoryMetrics(id: string): Promise<RepositoryMetrics>;
+  getFinancialReport(id: string, timeframe: Timeframe): Promise<FinancialReport>;
+  
+  // Contributor Management
+  blacklistContributor(repoId: string, contributorId: string, reason: string): Promise<void>;
+  whitelistContributor(repoId: string, contributorId: string): Promise<void>;
+}
 
 
