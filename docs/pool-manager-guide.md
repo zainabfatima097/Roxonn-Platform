@@ -1,6 +1,6 @@
 # Roxonn Platform: Pool Manager Manual
 
-## Overview
+## Overvie
 Pool Managers are project maintainers who fund repositories to attract quality contributors. This manual explains how to use Roxonn as a Pool Manager to fund your open-source projects and manage contributor rewards.
 
 ---
