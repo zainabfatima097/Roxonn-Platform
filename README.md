@@ -397,5 +397,5 @@ async function verifyUserRegistration(username) {
 ---
 
 ## 📚 Documentation
-- [Pool Manager Guide](./docs/pool-manager-guide.md) - Complete guide for project maintainers.
+- [Pool Manager Guide](./docs/pool-manager-guide.md) - Complete guide for project maintainers, funding and financial management and contributors.
 
