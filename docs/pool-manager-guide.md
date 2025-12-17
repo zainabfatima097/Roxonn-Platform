@@ -196,18 +196,6 @@ const funding = {
 
 ---
 
-![Leaderboard](screenshots/leaderboard.jpeg)
-*Top contributors and project rankings*
-
----
-
-### AI Assistant for Bounties
-
-![AI Chatbot](screenshots/05-ai-chatbot.jpeg)
-*AI assistant to help draft bounty descriptions*
-
----
-
 # Adding Bounties via GitHub Comments
 
 Instead of using the dashboard, you can now create bounties directly from GitHub issues using our bot integration. This feature allows you to manage rewards without leaving your development workflow.
@@ -499,6 +487,18 @@ jobs:
 2. **Provide Feedback:** Help contributors improve  
 3. **Build Relationships:** Engage with active contributors  
 4. **Share Success:** Publicize project milestones achieved through contributions
+
+---
+
+![Leaderboard](screenshots/leaderboard.jpeg)
+*Top contributors and project rankings*
+
+---
+
+### AI Assistant for Bounties
+
+![AI Chatbot](screenshots/aichat.jpeg)
+*AI assistant to help draft bounty descriptions*
 
 ---
 
