@@ -5,6 +5,11 @@ Pool Managers are project maintainers who fund repositories to attract quality c
 
 ---
 
+![Pool Manager Dashboard](screenshots/dashboard.jpeg)
+*Main dashboard showing repository overview and funding options*
+
+---
+
 ## Table of Contents
 
 <details>
@@ -35,20 +40,25 @@ Pool Managers are project maintainers who fund repositories to attract quality c
 ### Registration Process
 1. **Visit the Platform**  
    Go to [app.roxonn.com](https://app.roxonn.com)
+   
+   ![Roxonn Landing Page](screenshots/earn.jpeg)
+*Earn crypto by contributing to open source - Landing page*
 
-2. **Connect GitHub**  
+3. **Connect GitHub**  
    Authorize Roxonn to access your GitHub account
 
-3. **Wallet Setup**  
+   ![User Profile Setup](screenshots/profile.jpeg)
+*Complete your profile and connect GitHub account*
+
+5. **Wallet Setup**  
    The system automatically generates an XDC wallet for you
 
-4. **Complete Profile**  
+6. **Complete Profile**  
    Add any additional information related to your project
 
 ---
 
 ### Dashboard Walkthrough
-[SCREENSHOT: Dashboard Overview]
 
 **Key Dashboard Sections:**
 1. **Repository Overview** - Quick stats for all your projects
@@ -186,6 +196,18 @@ const funding = {
 
 ---
 
+![Leaderboard](screenshots/leaderboard.jpeg)
+*Top contributors and project rankings*
+
+---
+
+### AI Assistant for Bounties
+
+![AI Chatbot](screenshots/05-ai-chatbot.jpeg)
+*AI assistant to help draft bounty descriptions*
+
+---
+
 # Adding Bounties via GitHub Comments
 
 Instead of using the dashboard, you can now create bounties directly from GitHub issues using our bot integration. This feature allows you to manage rewards without leaving your development workflow.
@@ -274,6 +296,9 @@ As a Pool Manager, you can:
 ---
 
 ## Working with Contributors
+
+![Contribute Page](screenshots/contribute.jpeg)
+*Browse and contribute to funded repositories*
 
 ### Attracting Contributors
 
@@ -474,6 +499,13 @@ jobs:
 2. **Provide Feedback:** Help contributors improve  
 3. **Build Relationships:** Engage with active contributors  
 4. **Share Success:** Publicize project milestones achieved through contributions
+
+---
+
+### Join the Community
+
+![Join Community](screenshots/join.jpeg)
+*Connect with other Pool Managers and contributors*
 
 ---
 
