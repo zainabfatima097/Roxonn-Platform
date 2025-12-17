@@ -46,6 +46,42 @@ Pool Managers are project maintainers who fund repositories to attract quality c
    Add any additional information related to your project
 
 ---
+
+### Dashboard Walkthrough
+[SCREENSHOT: Dashboard Overview]
+
+**Key Dashboard Sections:**
+1. **Repository Overview** - Quick stats for all your projects
+2. **Funding Status** - Current balances and funding needs
+3. **Active Bounties** - Open bounties across all repositories
+4. **Pending Reviews** - Contributions awaiting your approval
+5. **Recent Payouts** - Transaction history
+
+### Checking Pool Balances
+1. Navigate to your repository dashboard
+2. View the "Pool Balance" card showing:
+   - Total allocated funds
+   - Available balance
+   - Reserved for active bounties
+   - Recent transactions
+
+### Managing Active Bounties
+From your dashboard, you can:
+- Filter bounties by status (open, in-progress, completed)
+- View bounty details and assigned contributors
+- Adjust bounty amounts
+- Close or cancel bounties
+
+### GenAI Bounty Description Helper
+*(Note: Coming Soon)*
+Roxonn's GenAI tool will help you:
+- Generate detailed issue descriptions
+- Create acceptance criteria
+- Estimate complexity and appropriate reward amounts
+- Format issues for maximum contributor clarity
+
+---
+
 ## Repository Registration
 
 ### Step 1: Register Your Repository
