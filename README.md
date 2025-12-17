@@ -393,3 +393,9 @@ async function verifyUserRegistration(username) {
 - All requests should be made server-to-server
 - We recommend implementing rate limiting on your side to prevent abuse
 - For security and privacy reasons, only minimal user information is returned
+
+---
+
+## 📚 Documentation
+- [Pool Manager Guide](./docs/pool-manager-guide.md) - Complete guide for project maintainers.
+
