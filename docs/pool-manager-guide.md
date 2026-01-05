@@ -6,7 +6,7 @@ Pool Managers are project maintainers who fund repositories to attract quality c
 ---
 
 ![Pool Manager Dashboard](screenshots/dashboard.jpeg)
-*Main dashboard showing repository overview and funding options*
+*Main homepage showing repository overview and funding options*
 
 ---
 
@@ -44,16 +44,16 @@ Pool Managers are project maintainers who fund repositories to attract quality c
    ![Roxonn Landing Page](screenshots/earn.jpeg)
 *Earn crypto by contributing to open source - Landing page*
 
-3. **Connect GitHub**  
+2. **Connect GitHub**  
    Authorize Roxonn to access your GitHub account
 
    ![User Profile Setup](screenshots/profile.jpeg)
 *Complete your profile and connect GitHub account*
 
-5. **Wallet Setup**  
+3. **Wallet Setup**  
    The system automatically generates an XDC wallet for you
 
-6. **Complete Profile**  
+4. **Complete Profile**  
    Add any additional information related to your project
 
 ---
@@ -107,7 +107,7 @@ Roxonn's GenAI tool will help you:
 
 ### Step 2: Configure Repository Settings
 
-**Example Repository Configuration**
+### Example Repository Configuration 
 ```yaml
 repository:
   name: "your-project-name"
@@ -196,34 +196,9 @@ const funding = {
 
 ---
 
-# Adding Bounties via GitHub Comments
+## Adding Bounties via GitHub Comments 
+For detailed bot command reference, see Bot Commands Documentation
 
-Instead of using the dashboard, you can now create bounties directly from GitHub issues using our bot integration. This feature allows you to manage rewards without leaving your development workflow.
-
-## Available Commands
-
-```bash
-# Basic bounty creation
-@roxonn add bounty 100 XDC
-@roxonn set reward 500 ROXN
-@roxonn fund issue with 200 USDC
-
-# With parameters and conditions
-@roxonn add bounty 150 XDC priority=high
-@roxonn set reward 300 ROXN requires-tests=true deadline=7d
-@roxonn fund with 250 XDC for-beginner=true
-
-# Check and manage existing bounties
-@roxonn bounty status
-@roxonn show rewards
-@roxonn increase bounty by 50 XDC
-@roxonn close bounty
-@roxonn transfer bounty to issue#45
-
-# Get help
-@roxonn help
-@roxonn commands
-```
 ---
 
 ```mermaid
@@ -336,41 +311,6 @@ Once these conditions are satisfied, the reward is released to the contributor o
 
 ## Advanced Features
 
-### Multi-Signature Wallets
-
-For larger projects or organizations, Pool Managers can configure **multi-signature (multi-sig) wallets** to enhance security.
-
-With multi-sig wallets:
-- Multiple maintainers must approve reward payments
-- No single maintainer can unilaterally release funds
-- Payments are executed only after the required number of signatures is collected
-
-This setup is recommended for high-value repositories or shared treasury management.
-
-```solidity
-// Example multi-sig configuration
-multisig:
-  required_signatures: 2
-  signers:
-    - "0xMaintainer1"
-    - "0xMaintainer2"
-    - "0xMaintainer3"
-```
-
----
-
-### Staking for Pool Managers
-
-Pool Managers can stake **ROXN tokens** to unlock additional platform benefits, including:
-
-- Governance voting rights for platform-level decisions
-- Discounts on platform fees
-- Increased reputation and visibility within the Roxonn ecosystem
-
-Staking helps establish long-term commitment and trust, especially for high-impact projects.
-
----
-
 ### Analytics Dashboard
 
 The Analytics Dashboard provides insights into your repository’s performance and engagement.
@@ -398,39 +338,40 @@ These insights help Pool Managers optimize funding strategies and contributor en
 
 ### Integration with CI/CD
 
-Roxonn integrates seamlessly with existing CI/CD pipelines to automate validation and reward eligibility.
+Roxonn can integrate with existing CI/CD pipelines to automate contribution validation and reward eligibility.
 
-Supported integrations allow you to:
-- Require CI checks to pass before rewards are released
-- Enforce test coverage and build success
-- Ensure consistent code quality before payment automation triggers
+CI/CD integration enables teams to:
+- Require pull requests to pass CI checks before rewards are released
+- Enforce test coverage, linting, and build success
+- Ensure rewards are only distributed for verified, high-quality contributions
 
-This ensures rewards are only distributed for verified, high-quality contributions.
+This helps maintain consistent code quality while enabling automated reward workflows.
+
+#### GitHub Actions Integration (Conceptual Example)
+
+The following example demonstrates how Roxonn can be incorporated into a GitHub Actions workflow **at a high level**.  
+Concrete API endpoints and payment triggers may vary based on backend configuration and should reference the current server implementation.
+
 ```yaml
-# GitHub Actions Integration Example
 name: Roxonn Bounty Verification
+
 on:
   pull_request:
     types: [closed]
+
 jobs:
-  verify-and-pay:
-    runs-on: ubuntu-latest
+  verify-contribution:
     if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
     steps:
       - name: Verify Contribution
         uses: roxonn/verify-action@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           roxonn-token: ${{ secrets.ROXONN_TOKEN }}
-      
-      - name: Trigger Payment
-        if: success()
-        run: |
-          curl -X POST https://api.roxonn.com/webhook/payment \
-            -H "Authorization: Bearer ${{ secrets.ROXONN_TOKEN }}" \
-            -d '{"pr_id": "${{ github.event.pull_request.id }}"}'
 ```
 ---
+
 # Troubleshooting
 
 ## Common Issues and Solutions
@@ -465,9 +406,13 @@ jobs:
 ### Support Channels
 
 - **Documentation:** [docs.roxonn.com](https://docs.roxonn.com)
+- **Related Documentation:**
+- [Bot Commands Documentation](docs/BOT_COMMANDS.md)  <!-- relative path -->
+- [Private Repository Features](docs/FEATURES/PRIVATE_REPOS.md)
+- [Security Considerations](docs/SECURITY.md)
+
 - **Discord Community:** Join for real-time support
 - **GitHub Issues:** Report bugs or request features
-- **Email Support:** [support@roxonn.com](mailto:support@roxonn.com)
 
 ---
 
@@ -531,7 +476,7 @@ jobs:
 
 # Smart Contract Safety
 
-- **Contracts are audited and open source**  
+- **Contracts are audited and open-source**  
 - **Use only verified contract addresses**  
 - **Test on Apothem Testnet first**  
 - **Start with small transaction amounts**  
@@ -543,7 +488,6 @@ jobs:
 - **Contribution:** Code change submitted via pull request  
 - **Reward Pool:** Total funds allocated to a repository  
 - **Dispute Period:** Time window for contesting payment decisions  
-- **Multi-sig:** Multi-signature wallet requiring multiple approvals
 
 ---
 
@@ -572,25 +516,22 @@ interface PoolManagerAPI {
   blacklistContributor(repoId: string, contributorId: string, reason: string): Promise<void>;
   whitelistContributor(repoId: string, contributorId: string): Promise<void>;
 }
-
+```
 ---
 
-Quick Reference Commands
+## API Access (Overview)
 
-```bash
-# Check repository balance
-curl -X GET https://api.roxonn.com/repos/{repoId}/balance \
-  -H "Authorization: Bearer YOUR_TOKEN"
+Roxonn exposes REST APIs to support repository balance management, funding operations, and payment status tracking.
 
-# Add funds to repository
-curl -X POST https://api.roxonn.com/repos/{repoId}/fund \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{"amount": "100", "token": "XDC"}'
+However, API endpoints, base URLs, and request formats may evolve as the platform develops. To avoid documenting incorrect or outdated information, this guide does not include hardcoded API examples.
 
-# Get pending payments
-curl -X GET https://api.roxonn.com/repos/{repoId}/pending-payments \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
+### Source of Truth
+
+For the most accurate and up-to-date implementation details, refer to:
+- `server/routes/blockchainRoutes.ts` - defines the current API routes and handlers
+- Backend service configuration for environment-specific base URLs
+
+This guide focuses on the **Pool Manager workflow and responsibilities** rather than low-level API usage. Concrete API examples can be added once the API surface is finalized and publicly documented.
 
 ---
 
@@ -603,7 +544,7 @@ curl -X GET https://api.roxonn.com/repos/{repoId}/pending-payments \
 ---
 
 **Version:** 1.0.0  
-**Last Updated:** December 2024  
+**Last Updated:** January 2026
 **Platform Version:** Roxonn v2.1+
 
 
